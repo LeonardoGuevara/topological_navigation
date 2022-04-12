@@ -167,7 +167,9 @@ class TopologicalNavServer(object):
             from mesapro.msg import hri_msg, robot_msg
             from std_msgs.msg import Bool
             import threading # Needed for Timer
-            global threading, hri_msg, robot_msg         
+            import yaml
+            global threading, hri_msg, robot_msg      
+            #Initialization
             self.pub_hz=0.01                      # main loop frequency
             self.publish=False                    # flag to activate robot_msg publishing in the main loop
             self.robot_action=4                   # current robot action, "waiting for human command" as initial condition
@@ -176,11 +178,15 @@ class TopologicalNavServer(object):
             self.hri_goal = self.goal             # New final goal node determined by the safety_system 
             self.hri_safety_action=7              # New safety action from the safety_system, "no safety action" as initial condition
             self.hri_safety_action_past=self.hri_safety_action # past safety action already taken
-            self.op_mode="logistics"              # assuming logistics as operation mode, it can also be "UV-C" mode
+            self.op_mode="logistics"              # assuming logistics as operation mode, it can also be "UVC" mode, it will be updated with the safety system messages
             self.current_target="Unknown"         # current closest node in the route plan, initial condition "Unknown"
             self.teleop_lock=False                # flag to know if teleoperation is required, "False" means no command have been received from joystick
             #Safety Timer
-            self.time_without_msg=rospy.get_param("/topological_navigation/time_without_msg",5) # Maximum time without receiving safety messages or teleop commands
+            #Importing parameters from .yaml file
+            config_direct=rospy.get_param("/topological_navigation/config_direct")
+            a_yaml_file = open(config_direct+"global_config.yaml")
+            parsed_yaml_file = yaml.load(a_yaml_file, Loader=yaml.FullLoader)
+            self.time_without_msg=parsed_yaml_file.get("human_safety_config").get("time_without_msg") # Maximum time without receiving safety messages or teleop commands
             self.timer_safety = threading.Timer(self.time_without_msg,self.safety_timeout) # If "n" seconds elapse, call safety_timeout()
             self.timer_safety.start()
             self.no_safety_action=False           #flag to know if safety_system is working or not, "False" means "safety system working" 
