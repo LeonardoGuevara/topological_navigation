@@ -1076,6 +1076,9 @@ class TopologicalNavServer(object):
                 if (self.hri_safety_action!=self.robot_action and self.hri_safety_action!=7) or (self.robot_action==self.hri_safety_action and self.goal!=self.hri_goal): 
                     self.robot_action=self.hri_safety_action
                     self.preemptCallback() #to stop current navigation_action
+                elif (self.hri_safety_action==7 and self.robot_action==6): #if previous action was gesture control (at footpaths) but it is not longer needed, NOTE: this condition is needed if self.goal=="Unknown"
+                    self.robot_action=4 # to make the robot wait for new command
+                    self.preemptCallback() #to stop current navigation_action
         else:
             if self.robot_action!=5: #If it comes from autonomous mode
                 self.robot_action=5 #teleoperation mode
