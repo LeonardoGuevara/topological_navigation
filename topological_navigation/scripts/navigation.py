@@ -1102,6 +1102,8 @@ class TopologicalNavServer(object):
         rob_msg = robot_msg()
         if server.current_node != "none": # if robot is located at a node
             parent=self.current_node
+        elif server.closest_node != "Unknown":
+            parent=self.closest_node
         elif self.current_target != "none" or self.current_target != "Unknown": #to find the closest node when robot is moving between nodes
             parent=self.current_target
         else:
@@ -1192,6 +1194,8 @@ if __name__ == "__main__":
                 rob_msg = robot_msg()
                 if server.current_node != "none": # if robot is located at a node
                     parent=server.current_node
+		elif server.closest_node != "Unknown":
+                    parent=server.closest_node
                 elif server.current_target != "none" or server.current_target != "Unknown": #to find the closest node when robot is moving between nodes
                     parent=server.current_target
                 else:
